@@ -1,0 +1,148 @@
+1. copy all files from soucepath to destinationpath using python:
+	soucepath ="c:/test/python"
+	destinationpath = "d:/destinatione"
+	a. apply filters  based on file type (Eg: txt/csv/jpg/doc/...)
+	b. apply filters based on filesize (Eg: 1/2/5/10 Mb)                                                                                          
+  c.Based on file created date and time you need to pick the file like 2 days back,3 days ......you need to  get the files and copy to another path 
+
+
+
+
+
+import os
+import shutil
+import datetime
+import sys
+
+# Move files by extension with available extensions listed
+def move_files_by_extension(source_folder, destination_folder):
+    files = os.listdir(source_folder)
+    extensions = set()
+
+    for file in files:
+        if os.path.isfile(os.path.join(source_folder, file)):
+            _, ext = os.path.splitext(file)
+            if ext:
+                extensions.add(ext)
+
+    if not extensions:
+        print("No files with extensions found in the source folder.")
+        return
+
+    print("Available file types in the source folder:")
+    for ext in sorted(extensions):
+        print(f"  - {ext}")
+
+    file_ext = input("Enter the file extension to move : ")
+    if not file_ext.startswith("."):
+        file_ext = "." + file_ext
+
+    files_copied = False
+
+    for file_name in files:
+        file_path = os.path.join(source_folder, file_name)
+
+        if os.path.isfile(file_path) and file_name.endswith(file_ext):
+            dest_path = os.path.join(destination_folder, file_name)
+            
+            if os.path.exists(dest_path):
+                choice = input(f"File '{file_name}' already exists. Overwrite? (yes/no): ")
+                if choice != 'yes':
+                    print(f"Skipped: {file_name}")
+                    continue
+
+            shutil.copy2(file_path, dest_path)
+            print(f"Copied: {file_name}")
+            files_copied = True
+
+    if not files_copied:
+        print(f"No '{file_ext}' files found in source folder.")
+    else:
+        print(f"All '{file_ext}' files have been copied to: {destination_folder}")
+
+
+# Copy files based on last modified time
+def copy_recent_modified_files(source_folder, destination_folder, days):
+    today = datetime.date.today()
+    from_date = today - datetime.timedelta(days=days)
+    from_time = datetime.datetime.combine(from_date, datetime.time.min)
+
+    files_copied = False
+
+    for file in os.listdir(source_folder):
+        file_path = os.path.join(source_folder, file)
+
+        if os.path.isfile(file_path):
+            modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+
+            if modified_time >= from_time:
+                shutil.copy2(file_path, os.path.join(destination_folder, file))
+                print(f"Copied: {file}")
+                files_copied = True
+
+    if not files_copied:
+        print(f"No files modified since {from_time.strftime('%Y-%m-%d %H:%M:%S')}.")
+
+
+# Copy files based on size
+def copy_files_min_size(source_folder, destination_folder, min_size_mb):
+    min_size_bytes = int(min_size_mb * 1024 * 1024)
+    files_copied = False
+
+    for file_name in os.listdir(source_folder):
+        file_path = os.path.join(source_folder, file_name)
+
+        if os.path.isfile(file_path) and os.path.getsize(file_path) >= min_size_bytes:
+            dest_path = os.path.join(destination_folder, file_name)
+
+            if os.path.exists(dest_path):
+                choice = input(f"File '{file_name}' already exists. Overwrite? (yes/no): ")
+                if choice != 'yes':
+                    print(f"Skipped: {file_name}")
+                    continue
+
+            shutil.copy2(file_path, dest_path)
+            print(f"Copied: {file_name}")
+            files_copied = True
+
+    if not files_copied:
+        print(f"No files larger than {min_size_mb} MB found.")
+    else:
+        print("All matching files copied successfully.")
+
+
+# Ask the user for the operation they want to perform
+print("Choose the operation:")
+print("1. Move files by extension")
+print("2. Copy recent files based on last modified date")
+print("3. Copy files based on minimum size")
+
+choice = input("Enter 1, 2, or 3: ")
+
+# Prompt the user for the source and destination folder paths
+source = input("Enter source folder path: ")
+if not os.path.isdir(source):
+    print(f"Error: Source folder '{source}' does not exist or is not a directory.")
+    sys.exit(1)
+elif len(os.listdir(source)) == 0:
+    print(f"Warning: Source folder '{source}' is empty.")
+    sys.exit(1)
+
+destination = input("Enter destination folder path: ")
+if not os.path.isdir(destination):
+    os.makedirs(destination, exist_ok=True)
+
+# Call the appropriate function based on user's choice
+if choice == '1':
+    move_files_by_extension(source, destination)
+
+elif choice == '2':
+    days = int(input("Enter the number of days back (e.g., 0 for today, 1 for yesterday): "))
+    copy_recent_modified_files(source, destination, days)
+
+elif choice == '3':
+    min_size_mb = float(input("Enter the minimum file size in MB: "))
+    copy_files_min_size(source, destination, min_size_mb)
+
+else:
+    print("Invalid choice! Please select 1, 2, or 3.")
