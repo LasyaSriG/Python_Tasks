@@ -1,0 +1,5 @@
+Create an Interactive Python UI that is allow us to send data into Database Credentials and those details should be encrypted, 
+while retiveing the data it need to get the list of databases from a dropdown list, Once if we select and 
+if we click on Any button automatically it should connect to that perticular Database and need to ge the Different Schema names in a dropdown 
+if we are going to select a table it should give the entire Database structure and Table details ,Primary key,count, Duplicates and Null values should be identified. 
+and this information should also display in front end.
