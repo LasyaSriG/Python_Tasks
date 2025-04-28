@@ -1,1 +1,2 @@
-
+Write a python Program to read a CSV file and Excel file from a folder and load the Data into Database(SQL SEVRER).
+Don't use Pandas using Python Generic methods to read CSV and Excel files you need to load the Data into Database.
