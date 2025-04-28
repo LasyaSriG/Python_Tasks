@@ -1,0 +1,41 @@
+Write a python program to read a folder ensuring that any changes made in the source folder —such as file deletions or any file modifications
+and creating a new subfolders —are automatically synchronized with the new  folder while maintaining an identical structure, including folders, subfolders, and files? 
+
+
+
+
+import os
+import shutil
+import filecmp
+
+def sync_directories(source_dir, dest_dir):
+    if not os.path.exists(source_dir):
+        print(f"Source directory '{source_dir}' does not exist.")
+        return
+
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+        print(f"Destination directory '{dest_dir}' created.")
+
+    try:
+        for item in os.listdir(source_dir):
+            s_item_path = os.path.join(source_dir, item)
+            d_item_path = os.path.join(dest_dir, item)
+
+            try:
+                if os.path.isfile(s_item_path):
+                    if not os.path.exists(d_item_path) or not filecmp.cmp(s_item_path, d_item_path, shallow=False):
+                        shutil.copy2(s_item_path, d_item_path)
+                        print(f"File '{item}' copied to destination.")
+                elif os.path.isdir(s_item_path):
+                    sync_directories(s_item_path, d_item_path)
+            except PermissionError:
+                print(f"Permission denied: Skipping '{s_item_path}'")
+    except PermissionError:
+        print(f"Permission denied: Cannot access directory '{source_dir}'")
+
+if __name__ == "__main__":
+    source_dir = input("Enter the source directory path: ")
+    dest_dir = input("Enter the destination directory path: ")
+    sync_directories(source_dir, dest_dir)
+ 
