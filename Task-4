@@ -1,0 +1,2 @@
+Read Data from Various sources like, a.Excel file b.CSV file c.Text file d .Json File e.read data from Database and 
+load the data into Pandas Dataframes there you need to analyse the Data, for that steps to involved in analysing the Data, if data is consisting anamolies how you are going to handle them.
